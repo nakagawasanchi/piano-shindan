@@ -317,10 +317,29 @@
   // 投稿画面を開き、貼り付けを案内する（実質「画像添付」にする）。
   // Safari は clipboard.write() をユーザー操作から同期的に呼ばないと失敗するため、
   // blobの取得（canvasToBlobのPromise）を待たずに ClipboardItem に渡してすぐ write() する。
+  //
+  // iOS Safariはユーザー操作から非同期処理（await）を挟んだ後のwindow.open()を
+  // ポップアップとしてブロックする。そのため、クリック直後（awaitに入る前）に
+  // 空のタブを同期的に開いておき、後続処理の結果に応じてそのタブのlocationを
+  // Intent URLに差し替える。window.open()がnull（ポップアップ拒否等）の場合は
+  // 同一タブ遷移にフォールバックし、いずれの場合も必ずIntent投稿画面へ到達させる。
   async function shareViaXWithImageAttach() {
     const canvas = $('result-canvas');
     let attach = 'clipboard';
     let copied = false;
+
+    const shareWindow = window.open('', '_blank');
+    if (shareWindow) {
+      try { shareWindow.opener = null; } catch (e) { /* noop */ }
+    }
+    const openIntent = () => {
+      const url = xIntentUrl();
+      if (shareWindow) {
+        shareWindow.location.href = url;
+      } else {
+        location.href = url;
+      }
+    };
 
     if (navigator.clipboard && window.ClipboardItem) {
       try {
@@ -338,7 +357,7 @@
 
     if (copied) {
       trackEvent('share_click', { method: 'x_intent', attach: 'clipboard' });
-      window.open(xIntentUrl(), '_blank', 'noopener');
+      openIntent();
       note.textContent = '画像をコピーしました。投稿画面で貼り付け（長押し→ペースト / Ctrl+V）してください。';
     } else {
       attach = 'download';
@@ -349,7 +368,7 @@
         // 画像取得に失敗しても投稿画面自体は開く
       }
       trackEvent('share_click', { method: 'x_intent', attach });
-      window.open(xIntentUrl(), '_blank', 'noopener');
+      openIntent();
       note.textContent = '保存した画像を投稿画面に添付してください。';
     }
   }
