@@ -17,6 +17,8 @@
   const DIGIT_MARK = ['no', 'partial', 'yes'];
 
   const SHARE_TEXT = '私の今のピアノスキルはこちら! #中川さん家のピアノ講座';
+  // X Intent（投稿画面）専用の文言。画像は自動添付できないため、貼り付け場所の目印を追記する。
+  const SHARE_TEXT_X = SHARE_TEXT + '\n[あなたの結果画像を添付しよう]';
   const TOP_URL = 'https://nakagawasanchi.github.io/piano-shindan/';
 
   // gtagが未読み込み（開発環境・広告ブロッカー等）でも本体動作に影響しないようにガードする
@@ -308,7 +310,7 @@
 
   function xIntentUrl() {
     return 'https://twitter.com/intent/tweet?text=' +
-      encodeURIComponent(SHARE_TEXT) + '&url=' + encodeURIComponent(TOP_URL);
+      encodeURIComponent(SHARE_TEXT_X) + '&url=' + encodeURIComponent(TOP_URL);
   }
 
   // X Web Intentは画像を直接添付できないため、結果画像をクリップボードにコピーしてから
