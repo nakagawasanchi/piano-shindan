@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>中川さん家のピアノ講座プレゼンツ ピアノスキル診断</title>
+<meta name="description" content="質問に答えると「自由にポップスピアノを弾けるようになる」までのロードマップに、あなたの現在地（できる・微妙・できない）を書き込んだ画像がもらえます。">
+<meta property="og:title" content="中川さん家のピアノ講座プレゼンツ ピアノスキル診断">
+<meta property="og:description" content="質問に答えて、ピアノロードマップ上のあなたの現在地を診断しよう">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nakagawasanchi.github.io/piano-shindan/">
+<meta property="og:image" content="https://nakagawasanchi.github.io/piano-shindan/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="中川さん家のピアノ講座プレゼンツ ピアノスキル診断">
+<meta name="twitter:description" content="質問に答えて、ピアノロードマップ上のあなたの現在地を診断しよう">
+<meta name="twitter:image" content="https://nakagawasanchi.github.io/piano-shindan/assets/og-image.jpg">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="assets/favicon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="assets/favicon-180.png">
+<link rel="stylesheet" href="style.css">
+<script>
+(function () {
+  // 開発アクセス（localhost / 127.0.0.1 / 192.168.x.x）は既定でGA4を読み込まない。
+  // ?ga_debug=1 を付けると開発環境でも有効化できる（動作確認用。本番挙動には影響しない）。
+  var host = location.hostname;
+  var isDevHost = host === 'localhost' || host === '127.0.0.1' || /^192\.168\.\d{1,3}\.\d{1,3}$/.test(host);
+  var debugOverride = new URLSearchParams(location.search).get('ga_debug') === '1';
+  if (isDevHost && !debugOverride) return;
+
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = function () { dataLayer.push(arguments); };
+  gtag('js', new Date());
+  gtag('config', 'G-8Z2CR8V7WK');
+
+  var s = document.createElement('script');
+  s.async = true;
+  s.src = 'https://www.googletagmanager.com/gtag/js?id=G-8Z2CR8V7WK';
+  document.head.appendChild(s);
+})();
+</script>
+</head>
+<body>
+
+<div id="app">
+
+  <!-- トップ画面 -->
+  <section id="view-top" class="view" hidden>
+    <header class="hero">
+      <img class="hero-logo" src="assets/channel-logo-trimmed.png" alt="中川さん家のピアノ講座">
+      <p class="hero-kicker">presents</p>
+      <h1 class="hero-title">ピアノスキル診断</h1>
+    </header>
+    <div class="card">
+      <p>「自由にポップスピアノを弾けるようになる」までのロードマップ。<br>
+      いまのあなたは、どこまで進んでいるでしょうか？</p>
+      <ul class="feature-list">
+        <li>質問に「できる／微妙・部分的／できない」で答えるだけ</li>
+        <li>楽譜・コード・アレンジ・セッション・その他の5分野・31項目を診断</li>
+        <li>回答に応じて質問は自動でスキップ（目安 20〜30問）</li>
+        <li>結果はロードマップ画像に書き込んでお渡しします。保存・シェアも可能</li>
+      </ul>
+      <button id="btn-start" class="btn btn-primary btn-lg">診断をはじめる</button>
+    </div>
+    <div class="roadmap-preview">
+      <img src="assets/roadmap.jpg" alt="ポップスピアノ上達ロードマップの全体図" loading="lazy">
+    </div>
+  </section>
+
+  <!-- 質問画面 -->
+  <section id="view-quiz" class="view" hidden>
+    <div class="quiz-head">
+      <div class="progress-track"><div id="progress-bar" class="progress-bar"></div></div>
+      <p id="progress-text" class="progress-text"></p>
+    </div>
+    <div class="card question-card">
+      <p id="q-lane" class="lane-chip"></p>
+      <h2 id="q-text" class="question-text"></h2>
+      <div class="answer-buttons">
+        <button id="btn-yes" class="btn btn-answer answer-yes">
+          <span class="answer-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="3.2"/></svg></span>
+          できる
+        </button>
+        <button id="btn-partial" class="btn btn-answer answer-partial">
+          <span class="answer-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 4.5 L20 19 L4 19 Z" fill="none" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/></svg></span>
+          微妙・部分的
+        </button>
+        <button id="btn-no" class="btn btn-answer answer-no">
+          <span class="answer-symbol" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5.5 5.5 L18.5 18.5 M18.5 5.5 L5.5 18.5" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg></span>
+          できない
+        </button>
+      </div>
+      <button id="btn-back" class="btn btn-ghost">1つ戻る</button>
+    </div>
+  </section>
+
+  <!-- 結果画面 -->
+  <section id="view-result" class="view" hidden>
+    <h2 class="result-title">診断結果</h2>
+    <p class="result-lead">あなたの現在地をロードマップに書き込みました。</p>
+    <div class="result-canvas-wrap">
+      <canvas id="result-canvas"></canvas>
+    </div>
+    <div class="result-actions">
+      <button id="btn-download" class="btn btn-primary">画像をダウンロード</button>
+      <button id="btn-share" class="btn btn-secondary">シェア</button>
+      <button id="btn-share-x" class="btn btn-secondary btn-share-x">Xでシェア</button>
+      <button id="btn-retry" class="btn btn-ghost">もう一度診断する</button>
+    </div>
+    <p id="share-note" class="share-note" hidden></p>
+  </section>
+
+</div>
+
+<footer class="site-footer">
+  <img class="footer-logo" src="assets/channel-logo-trimmed.png" alt="中川さん家のピアノ講座">
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
