@@ -21,6 +21,14 @@
   const SHARE_TEXT_X = SHARE_TEXT + '\n[あなたの結果画像を添付しよう]';
   const TOP_URL = 'https://nakagawasanchi.github.io/piano-shindan/';
 
+  // Jazz-Steps誘導カード（決定事項21）。リハモ（C4・C5）はカバー外のため判定に使わない。
+  const JAZZ_STEPS_TEXT = {
+    1: 'コードを覚えて手に馴染ませるには、反復練習が欠かせません。どうせなら、楽しく効率的に学びましょう！Jazz-Stepsでお待ちしています！',
+    2: '複雑なコードこそ、反復練習で手に馴染ませましょう。Jazz-Stepsではコードの種類を指定してひたすら覚えるまでトレーニングできます！',
+    3: 'コードは十分弾けているので、次は伴奏アレンジの引き出しですね。Jazz-Stepsなら、リズムパターンや盛り上げ方のバリエーションを体系的に増やせます。',
+    4: '仕上げはアドリブですね。Jazz-Steps内の「テキストブック」を読んでみてください。特に上級では、コード進行からジャズっぽいアドリブを作るための本格的な教材が用意されています！',
+  };
+
   // gtagが未読み込み（開発環境・広告ブロッカー等）でも本体動作に影響しないようにガードする
   function trackEvent(name, params) {
     if (typeof gtag === 'function') {
@@ -37,6 +45,7 @@
   let CHILDREN = {};        // id -> 直接依存される(上位)ID配列
   let answers = [];         // [{id, mark}] 回答履歴（戻る・リプレイ用）
   let baseImage = null;     // ロードマップ画像（遅延ロード）
+  let jazzStepsCurrentPattern = null; // 現在の結果画面で表示中のJazz-Stepsパターン（1〜4 / null）
 
   // ---------- 依存グラフ ----------
 
@@ -275,6 +284,47 @@
     renderQuestion();
   }
 
+  // コード・アレンジの「一番手前でつまずいている箇所」に応じてパターン1〜4を出し分ける（決定事項21）。
+  // 該当なし（C1〜C3・A1〜A7すべて⭕️。リハモC4/C5は判定に使わない）は null。
+  function jazzStepsPattern(marks) {
+    const isYes = (id) => marks[id] && marks[id].mark === 'yes';
+    const anyNotYes = (ids) => ids.some((id) => !isYes(id));
+    if (anyNotYes(['C1', 'C2'])) return 1;
+    if (!isYes('C3')) return 2;
+    if (anyNotYes(['A1', 'A2', 'A3', 'A4', 'A5'])) return 3;
+    if (anyNotYes(['A6', 'A7'])) return 4;
+    return null;
+  }
+
+  // パターン別スクリーンショットは後日オーナー支給予定。存在し読み込めた場合のみ表示する。
+  function setJazzStepsImage(pattern) {
+    const wrap = $('jazz-steps-image-wrap');
+    const img = $('jazz-steps-image');
+    const src = `assets/jazz-steps/pattern${pattern}.png`;
+    img.onload = () => { wrap.hidden = false; };
+    img.onerror = () => { wrap.hidden = true; };
+    if (img.getAttribute('src') === src && img.complete) {
+      wrap.hidden = img.naturalWidth === 0;
+      return;
+    }
+    wrap.hidden = true;
+    img.src = src;
+  }
+
+  function renderJazzStepsCard(marks) {
+    const pattern = jazzStepsPattern(marks);
+    jazzStepsCurrentPattern = pattern;
+    const card = $('jazz-steps-card');
+    if (!pattern) {
+      card.hidden = true;
+      return;
+    }
+    $('jazz-steps-body').textContent = JAZZ_STEPS_TEXT[pattern];
+    setJazzStepsImage(pattern);
+    card.hidden = false;
+    trackEvent('jazz_steps_impression', { pattern });
+  }
+
   async function showResult(marks, source) {
     show('result');
     $('share-note').hidden = true;
@@ -284,6 +334,7 @@
     } else if (source === 'restore') {
       trackEvent('result_restore');
     }
+    renderJazzStepsCard(marks);
     try {
       await renderResultCanvas($('result-canvas'), marks);
     } catch (e) {
@@ -422,6 +473,9 @@
     $('btn-share').addEventListener('click', share);
     $('btn-share-x').addEventListener('click', shareViaXWithImageAttach);
     $('btn-retry').addEventListener('click', () => { showTop(); startQuiz(); });
+    $('jazz-steps-cta').addEventListener('click', () => {
+      if (jazzStepsCurrentPattern) trackEvent('jazz_steps_click', { pattern: jazzStepsCurrentPattern });
+    });
 
     // 結果復元URL（?r=...）で開かれた場合は結果画面を直接表示
     const r = new URLSearchParams(location.search).get('r');
