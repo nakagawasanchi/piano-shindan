@@ -17,6 +17,7 @@
   const DIGIT_MARK = ['no', 'partial', 'yes'];
 
   const SHARE_TEXT = '私の今のピアノスキルはこちら! #中川さん家のピアノ講座';
+  const TOP_URL = 'https://nakagawasanchi.github.io/piano-shindan/';
 
   // gtagが未読み込み（開発環境・広告ブロッカー等）でも本体動作に影響しないようにガードする
   function trackEvent(name, params) {
@@ -121,13 +122,6 @@
     return marks;
   }
 
-  function resultUrl(marks) {
-    const url = new URL(location.href);
-    url.search = '?r=' + encodeResult(marks);
-    url.hash = '';
-    return url.toString();
-  }
-
   // ---------- 画像合成 ----------
 
   function loadImage() {
@@ -221,7 +215,6 @@
 
   const $ = (id) => document.getElementById(id);
   const views = { top: null, quiz: null, result: null };
-  let currentMarks = null; // 結果画面表示中の確定状態
 
   function show(name) {
     for (const [key, el] of Object.entries(views)) {
@@ -232,7 +225,6 @@
 
   function showTop() {
     answers = [];
-    currentMarks = null;
     history.replaceState(null, '', location.pathname);
     show('top');
   }
@@ -282,7 +274,6 @@
   }
 
   async function showResult(marks, source) {
-    currentMarks = marks;
     show('result');
     $('share-note').hidden = true;
     history.replaceState(null, '', '?r=' + encodeResult(marks));
@@ -299,9 +290,7 @@
     }
   }
 
-  async function downloadImage() {
-    trackEvent('image_download');
-    const blob = await canvasToBlob($('result-canvas'));
+  function triggerDownload(blob) {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
     a.download = 'piano-skill-shindan.png';
@@ -311,12 +300,56 @@
     setTimeout(() => URL.revokeObjectURL(a.href), 10000);
   }
 
-  function openXIntent() {
-    const url = resultUrl(currentMarks);
-    trackEvent('share_click', { method: 'x_intent' });
-    const intent = 'https://twitter.com/intent/tweet?text=' +
-      encodeURIComponent(SHARE_TEXT) + '&url=' + encodeURIComponent(url);
-    window.open(intent, '_blank', 'noopener');
+  async function downloadImage() {
+    trackEvent('image_download');
+    const blob = await canvasToBlob($('result-canvas'));
+    triggerDownload(blob);
+  }
+
+  function xIntentUrl() {
+    return 'https://twitter.com/intent/tweet?text=' +
+      encodeURIComponent(SHARE_TEXT) + '&url=' + encodeURIComponent(TOP_URL);
+  }
+
+  // X Web Intentは画像を直接添付できないため、結果画像をクリップボードにコピーしてから
+  // 投稿画面を開き、貼り付けを案内する（実質「画像添付」にする）。
+  // Safari は clipboard.write() をユーザー操作から同期的に呼ばないと失敗するため、
+  // blobの取得（canvasToBlobのPromise）を待たずに ClipboardItem に渡してすぐ write() する。
+  async function shareViaXWithImageAttach() {
+    const canvas = $('result-canvas');
+    let attach = 'clipboard';
+    let copied = false;
+
+    if (navigator.clipboard && window.ClipboardItem) {
+      try {
+        await navigator.clipboard.write([
+          new ClipboardItem({ 'image/png': canvasToBlob(canvas) }),
+        ]);
+        copied = true;
+      } catch (e) {
+        copied = false;
+      }
+    }
+
+    const note = $('share-note');
+    note.hidden = false;
+
+    if (copied) {
+      trackEvent('share_click', { method: 'x_intent', attach: 'clipboard' });
+      window.open(xIntentUrl(), '_blank', 'noopener');
+      note.textContent = '画像をコピーしました。投稿画面で貼り付け（長押し→ペースト / Ctrl+V）してください。';
+    } else {
+      attach = 'download';
+      try {
+        const blob = await canvasToBlob(canvas);
+        triggerDownload(blob);
+      } catch (e) {
+        // 画像取得に失敗しても投稿画面自体は開く
+      }
+      trackEvent('share_click', { method: 'x_intent', attach });
+      window.open(xIntentUrl(), '_blank', 'noopener');
+      note.textContent = '保存した画像を投稿画面に添付してください。';
+    }
   }
 
   async function share() {
@@ -336,11 +369,8 @@
       if (e && e.name === 'AbortError') return; // ユーザーがキャンセル
       // 失敗時はフォールバックへ
     }
-    // フォールバック: X の Web Intent（結果復元URL + テキスト）
-    openXIntent();
-    const note = $('share-note');
-    note.hidden = false;
-    note.textContent = '画像は「画像をダウンロード」から保存して添付できます。';
+    // フォールバック: X 投稿画面を画像添付案内つきで開く
+    await shareViaXWithImageAttach();
   }
 
   // ---------- 初期化 ----------
@@ -369,7 +399,7 @@
     $('btn-back').addEventListener('click', goBack);
     $('btn-download').addEventListener('click', downloadImage);
     $('btn-share').addEventListener('click', share);
-    $('btn-share-x').addEventListener('click', openXIntent);
+    $('btn-share-x').addEventListener('click', shareViaXWithImageAttach);
     $('btn-retry').addEventListener('click', () => { showTop(); startQuiz(); });
 
     // 結果復元URL（?r=...）で開かれた場合は結果画面を直接表示
