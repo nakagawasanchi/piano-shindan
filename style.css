@@ -1,4 +1,4 @@
-/* ピアノスキル診断
+/* ピアノスキルセルフチェック
    配色は元画像に合わせる: クリーム地 / 濃紫 / ピンク */
 
 :root {
@@ -11,6 +11,9 @@
   --yes: #2f9e55;
   --partial: #d99400;
   --no: #d9404f;
+  --jazzsteps-teal: #2d7ba3;      /* Jazz-Steps公式アプリのヘッダー色から採取 */
+  --jazzsteps-teal-dark: #1f5c7c;
+  --jazzsteps-cream: #f1e8d5;     /* Jazz-Steps公式バナーの帯色から採取 */
   --radius: 14px;
   --shadow: 0 2px 12px rgba(67, 49, 76, 0.10);
 }
@@ -258,21 +261,44 @@ body {
 }
 
 /* ---------- Jazz-Steps誘導カード ---------- */
+/* サイト本体（クリーム／濃紫／ピンク）とは切り替え、Jazz-Steps公式のティール×クリームを採用 */
 
 .jazz-steps-card {
   margin-top: 18px;
+  background: linear-gradient(180deg, var(--jazzsteps-cream) 0%, #fff 70%);
+  border: 1px solid #d8cbaa;
+}
+
+.jazz-steps-banner-link {
+  display: block;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+  transition: opacity 0.15s ease;
+}
+
+.jazz-steps-banner-link:hover,
+.jazz-steps-banner-link:focus-visible {
+  opacity: 0.88;
+}
+
+.jazz-steps-banner {
+  display: block;
+  width: 100%;
+  height: auto;
 }
 
 .jazz-steps-heading {
   font-size: 1.05rem;
-  color: var(--pink);
+  color: var(--jazzsteps-teal);
   margin-bottom: 10px;
 }
 
 .jazz-steps-body {
   font-size: 0.92rem;
   line-height: 1.7;
-  color: var(--ink);
+  color: #2a2a2a;
   margin-bottom: 16px;
 }
 
@@ -281,6 +307,7 @@ body {
   overflow: hidden;
   margin-bottom: 16px;
   box-shadow: var(--shadow);
+  border: 1px solid #d8cbaa;
 }
 
 .jazz-steps-image {
@@ -291,6 +318,14 @@ body {
   height: auto;
   margin: 0 auto;
 }
+
+.btn-jazz-steps {
+  background: var(--jazzsteps-teal);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(45, 123, 163, 0.35);
+}
+
+.btn-jazz-steps:hover { background: var(--jazzsteps-teal-dark); }
 
 /* ---------- フッター ---------- */
 

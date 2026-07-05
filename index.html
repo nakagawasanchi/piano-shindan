@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>中川さん家のピアノ講座プレゼンツ ピアノスキル診断</title>
+<title>中川さん家のピアノ講座プレゼンツ ピアノスキルセルフチェック</title>
 <meta name="description" content="質問に答えると「自由にポップスピアノを弾けるようになる」までのロードマップに、あなたの現在地（できる・微妙・できない）を書き込んだ画像がもらえます。">
-<meta property="og:title" content="中川さん家のピアノ講座プレゼンツ ピアノスキル診断">
-<meta property="og:description" content="質問に答えて、ピアノロードマップ上のあなたの現在地を診断しよう">
+<meta property="og:title" content="中川さん家のピアノ講座プレゼンツ ピアノスキルセルフチェック">
+<meta property="og:description" content="質問に答えて、ピアノロードマップ上のあなたの現在地をチェックしよう">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://nakagawasanchi.github.io/piano-shindan/">
 <meta property="og:image" content="https://nakagawasanchi.github.io/piano-shindan/assets/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="中川さん家のピアノ講座プレゼンツ ピアノスキル診断">
-<meta name="twitter:description" content="質問に答えて、ピアノロードマップ上のあなたの現在地を診断しよう">
+<meta name="twitter:title" content="中川さん家のピアノ講座プレゼンツ ピアノスキルセルフチェック">
+<meta name="twitter:description" content="質問に答えて、ピアノロードマップ上のあなたの現在地をチェックしよう">
 <meta name="twitter:image" content="https://nakagawasanchi.github.io/piano-shindan/assets/og-image.jpg">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="icon" href="assets/favicon-32.png" sizes="32x32" type="image/png">
@@ -51,18 +51,18 @@
     <header class="hero">
       <img class="hero-logo" src="assets/channel-logo-trimmed.png" alt="中川さん家のピアノ講座">
       <p class="hero-kicker">presents</p>
-      <h1 class="hero-title">ピアノスキル診断</h1>
+      <h1 class="hero-title">ピアノスキルセルフチェック</h1>
     </header>
     <div class="card">
       <p>「自由にポップスピアノを弾けるようになる」までのロードマップ。<br>
       いまのあなたは、どこまで進んでいるでしょうか？</p>
       <ul class="feature-list">
         <li>質問に「できる／微妙・部分的／できない」で答えるだけ</li>
-        <li>楽譜・コード・アレンジ・セッション・その他の5分野・31項目を診断</li>
+        <li>楽譜・コード・アレンジ・セッション・その他の5分野・31項目をセルフチェック</li>
         <li>回答に応じて質問は自動でスキップ（目安 20〜30問）</li>
         <li>結果はロードマップ画像に書き込んでお渡しします。保存・シェアも可能</li>
       </ul>
-      <button id="btn-start" class="btn btn-primary btn-lg">診断をはじめる</button>
+      <button id="btn-start" class="btn btn-primary btn-lg">セルフチェックをはじめる</button>
     </div>
     <div class="roadmap-preview">
       <img src="assets/roadmap.jpg" alt="ポップスピアノ上達ロードマップの全体図" loading="lazy">
@@ -98,7 +98,7 @@
 
   <!-- 結果画面 -->
   <section id="view-result" class="view" hidden>
-    <h2 class="result-title">診断結果</h2>
+    <h2 class="result-title">チェック結果</h2>
     <p class="result-lead">あなたの現在地をロードマップに書き込みました。</p>
     <div class="result-canvas-wrap">
       <canvas id="result-canvas"></canvas>
@@ -107,17 +107,20 @@
       <button id="btn-download" class="btn btn-primary">画像をダウンロード</button>
       <button id="btn-share" class="btn btn-secondary">シェア</button>
       <button id="btn-share-x" class="btn btn-secondary btn-share-x">Xでシェア</button>
-      <button id="btn-retry" class="btn btn-ghost">もう一度診断する</button>
+      <button id="btn-retry" class="btn btn-ghost">もう一度セルフチェックする</button>
     </div>
     <p id="share-note" class="share-note" hidden></p>
 
     <div id="jazz-steps-card" class="card jazz-steps-card" hidden>
+      <a id="jazz-steps-banner-link" class="jazz-steps-banner-link" href="https://jazz-steps.com/ja?utm_source=piano-shindan&utm_medium=referral&utm_campaign=result_card" target="_blank" rel="noopener noreferrer">
+        <img class="jazz-steps-banner" src="assets/jazz-steps/banner.png" alt="Jazz-Steps">
+      </a>
       <h3 class="jazz-steps-heading">あなたの「次の一歩」に</h3>
       <p id="jazz-steps-body" class="jazz-steps-body"></p>
       <div id="jazz-steps-image-wrap" class="jazz-steps-image-wrap" hidden>
         <img id="jazz-steps-image" class="jazz-steps-image" alt="Jazz-Steps紹介画像">
       </div>
-      <a id="jazz-steps-cta" class="btn btn-primary" href="https://jazz-steps.com/ja?utm_source=piano-shindan&utm_medium=referral&utm_campaign=result_card" target="_blank" rel="noopener noreferrer">Jazz-Stepsを見てみる</a>
+      <a id="jazz-steps-cta" class="btn btn-jazz-steps" href="https://jazz-steps.com/ja?utm_source=piano-shindan&utm_medium=referral&utm_campaign=result_card" target="_blank" rel="noopener noreferrer">Jazz-Stepsを見てみる</a>
     </div>
   </section>
 

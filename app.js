@@ -1,4 +1,4 @@
-/* 中川さん家のピアノ講座プレゼンツ ピアノスキル診断 */
+/* 中川さん家のピアノ講座プレゼンツ ピアノスキルセルフチェック */
 (() => {
   'use strict';
 
@@ -179,7 +179,7 @@
     ctx.restore();
   }
 
-  function drawDiagnosisDate(ctx, W, H) {
+  function drawCheckDate(ctx, W, H) {
     const now = new Date();
     const text = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
     const fontSize = Math.round(W * 0.016);
@@ -213,7 +213,7 @@
       if (!m) continue;
       drawMark(ctx, m.mark, item.pos.x * W, item.pos.y * H, R);
     }
-    drawDiagnosisDate(ctx, W, H);
+    drawCheckDate(ctx, W, H);
   }
 
   function canvasToBlob(canvas) {
@@ -346,7 +346,7 @@
   function triggerDownload(blob) {
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'piano-skill-shindan.png';
+    a.download = 'piano-skill-selfcheck.png';
     document.body.appendChild(a);
     a.click();
     a.remove();
@@ -431,7 +431,7 @@
     // 画像が2枚貼り付いたように見える不具合があった。そのため画像共有はfilesとtextのみにする。
     try {
       const blob = await canvasToBlob($('result-canvas'));
-      const file = new File([blob], 'piano-skill-shindan.png', { type: 'image/png' });
+      const file = new File([blob], 'piano-skill-selfcheck.png', { type: 'image/png' });
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
         trackEvent('share_click', { method: 'web_share' });
         await navigator.share({ files: [file], text: SHARE_TEXT });
@@ -474,7 +474,10 @@
     $('btn-share-x').addEventListener('click', shareViaXWithImageAttach);
     $('btn-retry').addEventListener('click', () => { showTop(); startQuiz(); });
     $('jazz-steps-cta').addEventListener('click', () => {
-      if (jazzStepsCurrentPattern) trackEvent('jazz_steps_click', { pattern: jazzStepsCurrentPattern });
+      if (jazzStepsCurrentPattern) trackEvent('jazz_steps_click', { pattern: jazzStepsCurrentPattern, location: 'cta_button' });
+    });
+    $('jazz-steps-banner-link').addEventListener('click', () => {
+      if (jazzStepsCurrentPattern) trackEvent('jazz_steps_click', { pattern: jazzStepsCurrentPattern, location: 'banner' });
     });
 
     // 結果復元URL（?r=...）で開かれた場合は結果画面を直接表示
